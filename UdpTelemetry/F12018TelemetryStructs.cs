@@ -3,7 +3,7 @@ using System;
 /// <summary>
 /// reference site : https://forums.codemasters.com/discussion/136948/f1-2018-udp-specification
 /// </summary>
-namespace Project_RedRacingTelemetry
+namespace F12018UdpTelemetry
 {
     /// <summary>
     ///  2018의 주요 변경 사항은 여러 패킷 유형의 도입입니다. 
@@ -11,15 +11,16 @@ namespace Project_RedRacingTelemetry
     /// 각 패킷에도 헤더가 추가되어 버전 관리를 추적 할 수 있으며 응용 프로그램이 들어오는 데이터를 올바른 방식으로 해석하고 있는지 쉽게 확인할 수 있습니다.
     /// ref code : https://us.v-cdn.net/5021484/uploads/editor/i2/fj958zeqdhf8.png
     /// </summary>
-    public class PacketHeader
+    [Serializable]
+    public struct PacketHeader
     {
         public UInt16    m_packetFormat;         // 2018
-        public sbyte     m_packetVersion;        // Version of this packet type, all start from 1
-        public sbyte     m_packetId;             // Identifier for the packet type, see below
+        public byte     m_packetVersion;        // Version of this packet type, all start from 1
+        public byte m_packetId;             // Identifier for the packet type, see below
         public UInt64    m_sessionUID;           // Unique identifier for the session
         public float     m_sessionTime;          // Session timestamp
         public uint      m_frameIdentifier;      // Identifier for the frame the data was retrieved on
-        public sbyte     m_playerCarIndex;       // Index of player's car in the array
+        public byte m_playerCarIndex;       // Index of player's car in the array
     }
 
     /// <summary>
@@ -28,26 +29,27 @@ namespace Project_RedRacingTelemetry
     /// NB 아래의 정규화 된 벡터의 경우 float 값으로 변환하면 32767.0f로 나눕니다. 
     /// 16 비트 부호있는 값은 방향 값이 항상 -1.0f와 1.0f 사이에 있다는 가정하에 데이터를 묶는 데 사용됩니다.
     /// </summary>
-    public class CarMotionData
+    [Serializable]
+    public struct CarMotionData
     {
-        public float         m_worldPositionX;           // World space X position
-        public float         m_worldPositionY;           // World space Y position
-        public float         m_worldPositionZ;           // World space Z position
-        public float         m_worldVelocityX;           // Velocity in world space X
-        public float         m_worldVelocityY;           // Velocity in world space Y
-        public float         m_worldVelocityZ;           // Velocity in world space Z
+        public double         m_worldPositionX;           // World space X position
+        public double         m_worldPositionY;           // World space Y position
+        public double         m_worldPositionZ;           // World space Z position
+        public double         m_worldVelocityX;           // Velocity in world space X
+        public double         m_worldVelocityY;           // Velocity in world space Y
+        public double         m_worldVelocityZ;           // Velocity in world space Z
         public Int16         m_worldForwardDirX;         // World space forward X direction (normalised)
         public Int16         m_worldForwardDirY;         // World space forward Y direction (normalised)
         public Int16         m_worldForwardDirZ;         // World space forward Z direction (normalised)
         public Int16         m_worldRightDirX;           // World space right X direction (normalised)
         public Int16         m_worldRightDirY;           // World space right Y direction (normalised)
         public Int16         m_worldRightDirZ;           // World space right Z direction (normalised)
-        public float         m_gForceLateral;            // Lateral G-Force component
-        public float         m_gForceLongitudinal;       // Longitudinal G-Force component
-        public float         m_gForceVertical;           // Vertical G-Force component
-        public float         m_yaw;                      // Yaw angle in radians
-        public float         m_pitch;                    // Pitch angle in radians
-        public float         m_roll;                     // Roll angle in radians
+        public double         m_gForceLateral;            // Lateral G-Force component
+        public double         m_gForceLongitudinal;       // Longitudinal G-Force component
+        public double         m_gForceVertical;           // Vertical G-Force component
+        public double         m_yaw;                      // Yaw angle in radians
+        public double         m_pitch;                    // Pitch angle in radians
+        public double m_roll;                     // Roll angle in radians
     }
 
     public class PacketMotionData

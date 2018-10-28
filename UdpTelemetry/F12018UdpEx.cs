@@ -1,4 +1,4 @@
-namespace Project_RedRacingTelemetry
+namespace F12018UdpTelemetry
 {
     public class Test {
         public void RunUdp() {
