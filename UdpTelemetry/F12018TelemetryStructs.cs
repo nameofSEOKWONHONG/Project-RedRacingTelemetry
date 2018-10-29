@@ -32,27 +32,28 @@ namespace F12018UdpTelemetry
     [Serializable]
     public struct CarMotionData
     {
-        public double         m_worldPositionX;           // World space X position
-        public double         m_worldPositionY;           // World space Y position
-        public double         m_worldPositionZ;           // World space Z position
-        public double         m_worldVelocityX;           // Velocity in world space X
-        public double         m_worldVelocityY;           // Velocity in world space Y
-        public double         m_worldVelocityZ;           // Velocity in world space Z
+        public float         m_worldPositionX;           // World space X position
+        public float         m_worldPositionY;           // World space Y position
+        public float         m_worldPositionZ;           // World space Z position
+        public float         m_worldVelocityX;           // Velocity in world space X
+        public float         m_worldVelocityY;           // Velocity in world space Y
+        public float         m_worldVelocityZ;           // Velocity in world space Z
         public Int16         m_worldForwardDirX;         // World space forward X direction (normalised)
         public Int16         m_worldForwardDirY;         // World space forward Y direction (normalised)
         public Int16         m_worldForwardDirZ;         // World space forward Z direction (normalised)
         public Int16         m_worldRightDirX;           // World space right X direction (normalised)
         public Int16         m_worldRightDirY;           // World space right Y direction (normalised)
         public Int16         m_worldRightDirZ;           // World space right Z direction (normalised)
-        public double         m_gForceLateral;            // Lateral G-Force component
-        public double         m_gForceLongitudinal;       // Longitudinal G-Force component
-        public double         m_gForceVertical;           // Vertical G-Force component
-        public double         m_yaw;                      // Yaw angle in radians
-        public double         m_pitch;                    // Pitch angle in radians
-        public double m_roll;                     // Roll angle in radians
+        public float         m_gForceLateral;            // Lateral G-Force component
+        public float         m_gForceLongitudinal;       // Longitudinal G-Force component
+        public float         m_gForceVertical;           // Vertical G-Force component
+        public float         m_yaw;                      // Yaw angle in radians
+        public float         m_pitch;                    // Pitch angle in radians
+        public float         m_roll;                     // Roll angle in radians
     }
 
-    public class PacketMotionData
+    [Serializable]
+    public struct PacketMotionData
     {
         public PacketHeader    m_header;               // Header
         public CarMotionData[]   m_carMotionData;    // Data for all cars on track (array length:20)
@@ -81,13 +82,15 @@ namespace F12018UdpTelemetry
     /// Frequency: 2 per second
     /// Size: 147 bytes
     /// </summary>
-    public class MarshalZone
+    [Serializable]    
+    public struct MarshalZone
     {
         public float  m_zoneStart;   // Fraction (0..1) of way through the lap the marshal zone starts
         public sbyte   m_zoneFlag;    // -1 = invalid/unknown, 0 = none, 1 = green, 2 = blue, 3 = yellow, 4 = red
     }
 
-    public class PacketSessionData
+    [Serializable]
+    public struct PacketSessionData
     {
         public PacketHeader    m_header;               	// Header
         public byte           m_weather;              	// Weather - 0 = clear, 1 = light cloud, 2 = overcast  // 3 = light rain, 4 = heavy rain, 5 = storm
@@ -120,7 +123,8 @@ namespace F12018UdpTelemetry
     /// Frequency: Rate as specified in menus
     /// Size: 841 bytes
     /// </summary>
-    public class LapData
+    [Serializable]
+    public struct LapData
     {
         public float       m_lastLapTime;           // Last lap time in seconds
         public float       m_currentLapTime;        // Current time around the lap in seconds
@@ -141,25 +145,29 @@ namespace F12018UdpTelemetry
         public byte       m_resultStatus;          // Result status - 0 = invalid, 1 = inactive, 2 = active 3 = finished, 4 = disqualified, 5 = not classified 6 = retired
     }
 
-    public class PacketLapData
+    [Serializable]
+    public struct PacketLapData
     {
         public PacketHeader    m_header;              // Header
         public LapData[]         m_lapData;         // Lap data for all cars on track, max =20
     }
 
+    
     /// <summary>
     /// his packet gives details of events that happen during the course of the race.
     /// Frequency: When the event occurs
     /// Size: 25 bytes
     /// ref code : https://us.v-cdn.net/5021484/uploads/editor/3p/n40iwrzvzhwq.jpg
     /// </summary>
-    public class PacketEventData
+    [Serializable]
+    public struct PacketEventData
     {
         public PacketHeader    m_header;               // Header
         
         public byte[]           m_eventStringCode;   // Event string code, see above, max=4
     }
 
+    
     /// <summary>
     /// PARTICIPANTS PACKET
     /// This is a list of participants in the race. 
@@ -168,7 +176,8 @@ namespace F12018UdpTelemetry
     /// Frequency: Every 5 seconds
     /// Size: 1082 bytes
     /// </summary>
-    public class ParticipantData
+    [Serializable]
+    public struct ParticipantData
     {
         public byte      m_aiControlled;           // Whether the vehicle is AI (1) or Human (0) controlled
         /// <summary>
@@ -187,7 +196,8 @@ namespace F12018UdpTelemetry
         public char[]       m_name;               // Name of participant in UTF-8 format – null terminated Will be truncated with … (U+2026) if too long, max=48
     }
 
-    public class PacketParticipantsData
+    [Serializable]
+    public struct PacketParticipantsData
     {
         public PacketHeader    m_header;            // Header
         public byte           m_numCars;           // Number of cars in the data
@@ -200,7 +210,8 @@ namespace F12018UdpTelemetry
     /// Frequency: Every 5 seconds
     /// Size: 841 bytes
     /// </summary>
-    public class CarSetupData
+    [Serializable]    
+    public struct CarSetupData
     {
         public byte     m_frontWing;                // Front wing aero
         public byte     m_rearWing;                 // Rear wing aero
@@ -224,7 +235,8 @@ namespace F12018UdpTelemetry
         public float     m_fuelLoad;                 // Fuel load
     };
 
-    public class PacketCarSetupData
+    [Serializable]
+    public struct PacketCarSetupData
     {
         PacketHeader    m_header;            // Header
 
@@ -237,7 +249,8 @@ namespace F12018UdpTelemetry
     /// Frequency: Rate as specified in menus
     /// Size: 1085 bytes
     /// </summary>
-    public class CarTelemetryData
+    [Serializable]
+    public struct CarTelemetryData
     {
         public byte    m_speed;                      // Speed of car in kilometres per hour
         public byte     m_throttle;                   // Amount of throttle applied (0 to 100)
@@ -255,7 +268,8 @@ namespace F12018UdpTelemetry
         public float[]     m_tyresPressure;           // Tyres pressure (PSI), max=4
     };
 
-    public class PacketCarTelemetryData
+    [Serializable]
+    public struct PacketCarTelemetryData
     {
         public PacketHeader        m_header;                // Header
 
@@ -273,7 +287,8 @@ namespace F12018UdpTelemetry
     /// Frequency: 2 per second
     /// Size: 1061 bytes
     /// </summary>
-    public class CarStatusData
+    [Serializable]    
+    public struct CarStatusData
     {
         public byte       m_tractionControl;          // 0 (off) - 2 (high)
         public byte       m_antiLockBrakes;           // 0 (off) - 1 (on)
@@ -303,7 +318,8 @@ namespace F12018UdpTelemetry
         public float       m_ersDeployedThisLap;       // ERS energy deployed this lap
     };
 
-    public class PacketCarStatusData
+    [Serializable]
+    public struct PacketCarStatusData
     {
         public PacketHeader        m_header;            // Header
 
