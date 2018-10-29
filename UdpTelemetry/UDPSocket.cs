@@ -67,27 +67,35 @@ namespace F12018UdpTelemetry
                         {
                             case 0:
                                 Console.WriteLine("Motion");
+                                F12018PacketInstance.Instance.CarMotionData = F1PacketConvertUtils.FromBinaryReader<CarMotionData>(rdr);
                                 break;
                             case 1:
                                 Console.WriteLine("Session");
+                                F12018PacketInstance.Instance.PacketSessionData = F1PacketConvertUtils.FromBinaryReader<PacketSessionData>(rdr);
                                 break;
                             case 2:
                                 Console.WriteLine("Lap Data");
+                                F12018PacketInstance.Instance.LapData = F1PacketConvertUtils.FromBinaryReader<LapData>(rdr);
                                 break;
                             case 3:
                                 Console.WriteLine("Event");
+                                F12018PacketInstance.Instance.PacketEventData = F1PacketConvertUtils.FromBinaryReader<PacketEventData>(rdr);
                                 break;
                             case 4:
                                 Console.WriteLine("Participants");
+                                F12018PacketInstance.Instance.ParticipantData = F1PacketConvertUtils.FromBinaryReader<ParticipantData>(rdr);
                                 break;
                             case 5:
                                 Console.WriteLine("Car Setups");
+                                F12018PacketInstance.Instance.CarSetupData = F1PacketConvertUtils.FromBinaryReader<CarSetupData>(rdr);
                                 break;
                             case 6:
                                 Console.WriteLine("Car Telemetry");
+                                F12018PacketInstance.Instance.CarTelemetryData = F1PacketConvertUtils.FromBinaryReader<CarTelemetryData>(rdr);
                                 break;
                             case 7:
                                 Console.WriteLine("Car Status");
+                                F12018PacketInstance.Instance.CarStatusData = F1PacketConvertUtils.FromBinaryReader<CarStatusData>(rdr);
                                 break;
                             default:
                                 break;
