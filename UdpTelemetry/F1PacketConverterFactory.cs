@@ -1,3 +1,4 @@
+using System;
 using System.IO;
 
 namespace F12018UdpTelemetry
@@ -38,6 +39,8 @@ namespace F12018UdpTelemetry
                 default:
                     break;
             }
+
+            return structObj;
         }
 
        

@@ -1,5 +1,7 @@
-namespace F12018UdpTelemetry
-{
+using System.IO;
+using System.Runtime.InteropServices;
+
+namespace F12018UdpTelemetry {
     public class F1PacketConvertUtils {
         /// <summary>
         /// Reads in a block from a file and converts it to the struct

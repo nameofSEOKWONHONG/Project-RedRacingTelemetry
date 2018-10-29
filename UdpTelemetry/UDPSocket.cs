@@ -1,5 +1,4 @@
-﻿using Newtonsoft.Json;
-using System;
+﻿using System;
 using System.IO;
 using System.Net;
 using System.Net.Sockets;
@@ -60,7 +59,7 @@ namespace F12018UdpTelemetry
                 {
                     using (BinaryReader rdr = new BinaryReader(stream))
                     {
-                        var packetHeader = FromBinaryReader<PacketHeader>(rdr);
+                        var packetHeader = F1PacketConvertUtils.FromBinaryReader<PacketHeader>(rdr);
 
                         Console.WriteLine($"m_packetId:{packetHeader.m_packetId}");
 
@@ -93,17 +92,6 @@ namespace F12018UdpTelemetry
                             default:
                                 break;
                         }
-
-                        //Console.WriteLine($"m_packetFormat:{packetHeader.m_packetFormat}");
-                        //Console.WriteLine($"m_packetVersion:{packetHeader.m_packetVersion}");
-                        //Console.WriteLine($"m_packetId:{packetHeader.m_sessionUID}");
-                        //Console.WriteLine($"m_sessionTime:{packetHeader.m_sessionTime}");
-                        //Console.WriteLine($"m_frameIdentifier:{packetHeader.m_frameIdentifier}");
-                        //Console.WriteLine($"m_playerCarIndex:{packetHeader.m_playerCarIndex}");
-
-                        //var carMotionData = FromBinaryReader<CarMotionData>(rdr);
-                        //Console.WriteLine($"m_worldPositionX:{carMotionData.m_worldPositionX}");
-
                         rdr.Close();
                     }
 
@@ -111,27 +99,6 @@ namespace F12018UdpTelemetry
                     stream.Close();
                 }
             }, state);
-        }
-
-        /// <summary>
-        /// Reads in a block from a file and converts it to the struct
-        /// type specified by the template parameter
-        /// </summary>
-        /// <typeparam name="T"></typeparam>
-        /// <param name="reader"></param>
-        /// <returns></returns>
-        private static T FromBinaryReader<T>(BinaryReader reader)
-        {
-
-            // Read in a byte array
-            byte[] bytes = reader.ReadBytes(Marshal.SizeOf(typeof(T)));
-
-            // Pin the managed memory while, copy it out the data, then unpin it
-            GCHandle handle = GCHandle.Alloc(bytes, GCHandleType.Pinned);
-            T theStructure = (T)Marshal.PtrToStructure(handle.AddrOfPinnedObject(), typeof(T));
-            handle.Free();
-
-            return theStructure;
         }
     }
 }
