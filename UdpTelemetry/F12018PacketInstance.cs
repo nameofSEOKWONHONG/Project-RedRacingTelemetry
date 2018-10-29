@@ -31,7 +31,28 @@ namespace F12018UdpTelemetry {
         public PacketParticipantsData PacketParticipantsData {get;set;}
         public CarSetupData CarSetupData {get;set;}
         public PacketCarSetupData PacketCarSetupData {get;set;}
-        public CarTelemetryData CarTelemetryData {get;set;}
+
+        private CarTelemetryData _carTelemetryData;
+        public CarTelemetryData CarTelemetryData {
+            get
+            {
+                return _carTelemetryData;
+            }
+            set
+            {
+                _carTelemetryData = value;
+                OnF1CarTelemetryDataReceive(this, new F1CarTelemetryDataEventArgs(6, _carTelemetryData));
+            }
+        }
+        public event EventHandler<F1CarTelemetryDataEventArgs> F1F1CarTelemetryDataReceived;
+        protected virtual void OnF1CarTelemetryDataReceive(object sender, F1CarTelemetryDataEventArgs e)
+        {
+            if (F1F1CarTelemetryDataReceived != null)
+            {
+                F1F1CarTelemetryDataReceived(this, e);
+            }
+        }
+
         public PacketCarTelemetryData PacketCarTelemetryData {get;set;}
 
         public CarStatusData _carStatusData;
@@ -41,7 +62,6 @@ namespace F12018UdpTelemetry {
             }
             set{
                 _carStatusData = value;
-                OnF1PacketDataReceived(this, new F1PacketEventArgs(6, _packetCarStatusData));
             }
         }
 
@@ -51,18 +71,16 @@ namespace F12018UdpTelemetry {
                 return _packetCarStatusData;
             }
             set{
-                _packetCarStatusData = value;                
-                OnF1PacketDataReceived(this, new F1PacketEventArgs(7, _packetCarStatusData));
+                _packetCarStatusData = value;
+                OnF1PacketCarStatusDataReceive(this, new F1PacketCarStatusDataEventArgs(7, _packetCarStatusData));
             }
         }
-
-        public event EventHandler<F1PacketEventArgs> F1PacketDataReceive;
-
-        protected virtual void OnF1PacketDataReceived(object sender, F1PacketEventArgs e)
+        public event EventHandler<F1PacketCarStatusDataEventArgs> F1PacketCarStatusDataReceived;
+        protected virtual void OnF1PacketCarStatusDataReceive(object sender, F1PacketCarStatusDataEventArgs e)
         {
-            if (F1PacketDataReceive != null)
+            if (F1PacketCarStatusDataReceived != null)
             {
-                F1PacketDataReceive(this, e);
+                F1PacketCarStatusDataReceived(this, e);
             }
         }
 
@@ -71,14 +89,24 @@ namespace F12018UdpTelemetry {
         }
     }
 
-    public class F1PacketEventArgs : EventArgs
+    public class F1PacketCarStatusDataEventArgs : EventArgs
     {
         public byte packetCode {get;set;}
-        public object packetStruct { get; set; }
-        public string Fps { get; set; }
-        public string Frame { get; set; }
+        public PacketCarStatusData packetStruct { get; set; }
 
-        public F1PacketEventArgs(byte packetCode, object packetStruct)
+        public F1PacketCarStatusDataEventArgs(byte packetCode, PacketCarStatusData packetStruct)
+        {
+            this.packetCode = packetCode;
+            this.packetStruct = packetStruct;
+        }
+    }
+
+    public class F1CarTelemetryDataEventArgs : EventArgs
+    {
+        public byte packetCode { get; set; }
+        public CarTelemetryData packetStruct { get; set; }
+
+        public F1CarTelemetryDataEventArgs(byte packetCode, CarTelemetryData packetStruct)
         {
             this.packetCode = packetCode;
             this.packetStruct = packetStruct;

@@ -8,7 +8,7 @@ using System.Text;
 
 namespace F12018UdpTelemetry
 {
-    public class UDPSocket
+    public class F12018UdpSocket
     {
         private Socket _socket = new Socket(AddressFamily.InterNetwork, SocketType.Dgram, ProtocolType.Udp);
         private const int bufSize = 8 * 1024;
