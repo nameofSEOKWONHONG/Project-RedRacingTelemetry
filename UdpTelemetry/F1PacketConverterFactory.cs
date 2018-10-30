@@ -11,11 +11,11 @@ namespace F12018UdpTelemetry
             {
                 case 0:
                     Console.WriteLine("Motion");
-                    structObj = F1PacketConvertUtils.FromBinaryReader<T>(br);
+                    //structObj = F1PacketConvertUtils.FromBinaryReader<T>(br);
                     break;
                 case 1:
                     Console.WriteLine("Session");
-                    structObj = F1PacketConvertUtils.FromBinaryReader<T>(br);
+                    //structObj = F1PacketConvertUtils.FromBinaryReader<T>(br);
                     break;
                 case 2:
                     Console.WriteLine("Lap Data");

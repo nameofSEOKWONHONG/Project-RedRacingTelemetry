@@ -1,4 +1,5 @@
 using System;
+using System.Runtime.InteropServices;
 
 /// <summary>
 /// reference site : https://forums.codemasters.com/discussion/136948/f1-2018-udp-specification
@@ -15,8 +16,8 @@ namespace F12018UdpTelemetry
     public struct PacketHeader
     {
         public UInt16    m_packetFormat;         // 2018
-        public byte     m_packetVersion;        // Version of this packet type, all start from 1
-        public byte m_packetId;             // Identifier for the packet type, see below
+        public byte      m_packetVersion;        // Version of this packet type, all start from 1
+        public byte      m_packetId;             // Identifier for the packet type, see below
         public UInt64    m_sessionUID;           // Unique identifier for the session
         public float     m_sessionTime;          // Session timestamp
         public uint      m_frameIdentifier;      // Identifier for the frame the data was retrieved on
@@ -112,9 +113,9 @@ namespace F12018UdpTelemetry
         public byte           m_spectatorCarIndex;  	// Index of the car being spectated
         public byte           m_sliProNativeSupport;	// SLI Pro support, 0 = inactive, 1 = active
         public byte           m_numMarshalZones;         	// Number of marshal zones to follow
-        public MarshalZone[]     m_marshalZones;         // List of marshal zones – max 21
+        public MarshalZone[]  m_marshalZones;         // List of marshal zones – max 21
         public byte           m_safetyCarStatus;          // 0 = no safety car, 1 = full safety car // 2 = virtual safety car
-        public byte          m_networkGame;              // 0 = offline, 1 = online
+        public byte           m_networkGame;              // 0 = offline, 1 = online
     }
 
     /// <summary>
@@ -177,6 +178,7 @@ namespace F12018UdpTelemetry
     /// Size: 1082 bytes
     /// </summary>
     [Serializable]
+    [StructLayout(LayoutKind.Sequential)]
     public struct ParticipantData
     {
         public byte      m_aiControlled;           // Whether the vehicle is AI (1) or Human (0) controlled
@@ -193,7 +195,8 @@ namespace F12018UdpTelemetry
         /// ref code : https://us.v-cdn.net/5021484/uploads/editor/0o/9wqezks7xzky.png
         /// </summary>
         public byte      m_nationality;            // Nationality of the driver
-        public char[]       m_name;               // Name of participant in UTF-8 format – null terminated Will be truncated with … (U+2026) if too long, max=48
+        [MarshalAs(UnmanagedType.ByValArray, SizeConst = 48, MarshalType = "byte[]", MarshalTypeRef = typeof(byte[]))]
+        public byte[]       m_name;               // Name of participant in UTF-8 format – null terminated Will be truncated with … (U+2026) if too long, max=48
     }
 
     [Serializable]
@@ -249,8 +252,8 @@ namespace F12018UdpTelemetry
     /// Frequency: Rate as specified in menus
     /// Size: 1085 bytes
     /// </summary>
-    [Serializable]
-    public struct CarTelemetryData
+    [Serializable()]
+    public struct  CarTelemetryData
     {
         public byte    m_speed;                      // Speed of car in kilometres per hour
         public byte     m_throttle;                   // Amount of throttle applied (0 to 100)
@@ -260,11 +263,11 @@ namespace F12018UdpTelemetry
         public sbyte      m_gear;                       // Gear selected (1-8, N=0, R=-1)
         public byte    m_engineRPM;                  // Engine RPM
         public byte     m_drs;                        // 0 = off, 1 = on
-        public byte     m_revLightsPercent;           // Rev lights indicator (percentage)
-        public UInt16[]    m_brakesTemperature;       // Brakes temperature (celsius), max=4
-        public UInt16[]    m_tyresSurfaceTemperature; // Tyres surface temperature (celsius), max=4
-        public UInt16[]    m_tyresInnerTemperature;   // Tyres inner temperature (celsius), max=4
-        public UInt16    m_engineTemperature;          // Engine temperature (celsius)
+        public byte     m_revLightsPercent;           // Rev lights indicator (percentage)        
+        public ushort[]    m_brakesTemperature;       // Brakes temperature (celsius), max=4
+        public ushort[]    m_tyresSurfaceTemperature; // Tyres surface temperature (celsius), max=4
+        public ushort[]    m_tyresInnerTemperature;   // Tyres inner temperature (celsius), max=4
+        public ushort m_engineTemperature;          // Engine temperature (celsius)
         public float[]     m_tyresPressure;           // Tyres pressure (PSI), max=4
     };
 
@@ -287,35 +290,38 @@ namespace F12018UdpTelemetry
     /// Frequency: 2 per second
     /// Size: 1061 bytes
     /// </summary>
-    [Serializable]    
+    [Serializable]
+    [StructLayout(LayoutKind.Sequential)]
     public struct CarStatusData
     {
-        public byte       m_tractionControl;          // 0 (off) - 2 (high)
-        public byte       m_antiLockBrakes;           // 0 (off) - 1 (on)
-        public byte       m_fuelMix;                  // Fuel mix - 0 = lean, 1 = standard, 2 = rich, 3 = max
-        public byte       m_frontBrakeBias;           // Front brake bias (percentage)
-        public byte       m_pitLimiterStatus;         // Pit limiter status - 0 = off, 1 = on
-        public float       m_fuelInTank;               // Current fuel mass
-        public float       m_fuelCapacity;             // Fuel capacity
-        public UInt16      m_maxRPM;                   // Cars max RPM, point of rev limiter
-        public UInt16      m_idleRPM;                  // Cars idle RPM
-        public byte       m_maxGears;                 // Maximum number of gears
-        public byte       m_drsAllowed;               // 0 = not allowed, 1 = allowed, -1 = unknown
-        public byte[]       m_tyresWear;             // Tyre wear percentage, max=4
-        public byte       m_tyreCompound;             // Modern - 0 = hyper soft, 1 = ultra soft 2 = super soft, 3 = soft, 4 = medium, 5 = hard 6 = super hard, 7 = inter, 8 = wet Classic - 0-6 = dry, 7-8 = wet
-        public byte[]       m_tyresDamage;           // Tyre damage (percentage), max=4
-        public byte       m_frontLeftWingDamage;      // Front left wing damage (percentage)
-        public byte       m_frontRightWingDamage;     // Front right wing damage (percentage)
-        public byte       m_rearWingDamage;           // Rear wing damage (percentage)
-        public byte       m_engineDamage;             // Engine damage (percentage)
-        public byte       m_gearBoxDamage;            // Gear box damage (percentage)
-        public byte       m_exhaustDamage;            // Exhaust damage (percentage)
-        public byte        m_vehicleFiaFlags;          // -1 = invalid/unknown, 0 = none, 1 = green 2 = blue, 3 = yellow, 4 = red
-        public float       m_ersStoreEnergy;           // ERS energy store in Joules
-        public byte       m_ersDeployMode;            // ERS deployment mode, 0 = none, 1 = low, 2 = medium 3 = high, 4 = overtake, 5 = hotlap
-        public float       m_ersHarvestedThisLapMGUK;  // ERS energy harvested this lap by MGU-K
-        public float       m_ersHarvestedThisLapMGUH;  // ERS energy harvested this lap by MGU-H
-        public float       m_ersDeployedThisLap;       // ERS energy deployed this lap
+        public byte m_tractionControl;          // 0 (off) - 2 (high)
+        public byte m_antiLockBrakes;           // 0 (off) - 1 (on)
+        public byte m_fuelMix;                  // Fuel mix - 0 = lean, 1 = standard, 2 = rich, 3 = max
+        public byte m_frontBrakeBias;           // Front brake bias (percentage)
+        public byte m_pitLimiterStatus;         // Pit limiter status - 0 = off, 1 = on
+        public float m_fuelInTank;               // Current fuel mass
+        public float m_fuelCapacity;             // Fuel capacity
+        public UInt16 m_maxRPM;                   // Cars max RPM, point of rev limiter
+        public UInt16 m_idleRPM;                  // Cars idle RPM
+        public byte m_maxGears;                 // Maximum number of gears
+        public byte m_drsAllowed;               // 0 = not allowed, 1 = allowed, -1 = unknown
+        [MarshalAs(UnmanagedType.ByValArray, SizeConst = 4, MarshalType = "byte[]", MarshalTypeRef = typeof(byte))]
+        public byte[] m_tyresWear;             // Tyre wear percentage, max=4
+        public byte m_tyreCompound;             // Modern - 0 = hyper soft, 1 = ultra soft 2 = super soft, 3 = soft, 4 = medium, 5 = hard 6 = super hard, 7 = inter, 8 = wet Classic - 0-6 = dry, 7-8 = wet
+        [MarshalAs(UnmanagedType.ByValArray, SizeConst = 4, MarshalType = "byte[]", MarshalTypeRef = typeof(byte))]
+        public byte[] m_tyresDamage;           // Tyre damage (percentage), max=4
+        public byte m_frontLeftWingDamage;      // Front left wing damage (percentage)
+        public byte m_frontRightWingDamage;     // Front right wing damage (percentage)
+        public byte m_rearWingDamage;           // Rear wing damage (percentage)
+        public byte m_engineDamage;             // Engine damage (percentage)
+        public byte m_gearBoxDamage;            // Gear box damage (percentage)
+        public byte m_exhaustDamage;            // Exhaust damage (percentage)
+        public byte m_vehicleFiaFlags;          // -1 = invalid/unknown, 0 = none, 1 = green 2 = blue, 3 = yellow, 4 = red
+        public float m_ersStoreEnergy;           // ERS energy store in Joules
+        public byte m_ersDeployMode;            // ERS deployment mode, 0 = none, 1 = low, 2 = medium 3 = high, 4 = overtake, 5 = hotlap
+        public float m_ersHarvestedThisLapMGUK;  // ERS energy harvested this lap by MGU-K
+        public float m_ersHarvestedThisLapMGUH;  // ERS energy harvested this lap by MGU-H
+        public float m_ersDeployedThisLap;       // ERS energy deployed this lap
     };
 
     [Serializable]

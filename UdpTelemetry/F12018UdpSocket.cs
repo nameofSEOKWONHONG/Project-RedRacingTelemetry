@@ -1,4 +1,5 @@
-﻿using System;
+﻿using MiniBinaryParser;
+using System;
 using System.IO;
 using System.Net;
 using System.Net.Sockets;
@@ -53,59 +54,113 @@ namespace F12018UdpTelemetry
                 int bytes = _socket.EndReceiveFrom(ar, ref epFrom);
                 _socket.BeginReceiveFrom(so.buffer, 0, bufSize, SocketFlags.None, ref epFrom, recv, so);
                 byte[] data = so.buffer;
+                //Array.Reverse(so.buffer);
 
-                Array.Reverse(so.buffer);
-                using (var stream = new MemoryStream(so.buffer))
+                PacketHeader packetHeader = new PacketHeader();
+                so.buffer.Parse(Endian.Little,
+                    From.UInt16((m_packetFormat) => packetHeader.m_packetFormat = m_packetFormat),
+                    From.Byte((m_packetVersion) => packetHeader.m_packetVersion = m_packetVersion),
+                    From.Byte((m_packetId) => packetHeader.m_packetId = m_packetId),
+                    From.UInt32((m_sessionUID) => packetHeader.m_sessionUID = m_sessionUID),
+                    From.Int32((m_sessionTime) => packetHeader.m_sessionTime = m_sessionTime),
+                    From.UInt16((m_frameIdentifier) => packetHeader.m_frameIdentifier = m_frameIdentifier),
+                    From.Byte((m_playerCarIndex) => packetHeader.m_playerCarIndex = m_playerCarIndex)
+                );
+
+                Console.WriteLine($"m_packetId:{packetHeader.m_packetId}");
+
+                switch (packetHeader.m_packetId)
                 {
-                    using (BinaryReader rdr = new BinaryReader(stream))
-                    {
-                        var packetHeader = F1PacketConvertUtils.FromBinaryReader<PacketHeader>(rdr);
-
-                        Console.WriteLine($"m_packetId:{packetHeader.m_packetId}");
-
-                        switch(packetHeader.m_packetId)
-                        {
-                            case 0:
-                                Console.WriteLine("Motion");
-                                F12018PacketInstance.Instance.CarMotionData = F1PacketConvertUtils.FromBinaryReader<CarMotionData>(rdr);
-                                break;
-                            case 1:
-                                Console.WriteLine("Session");
-                                F12018PacketInstance.Instance.PacketSessionData = F1PacketConvertUtils.FromBinaryReader<PacketSessionData>(rdr);
-                                break;
-                            case 2:
-                                Console.WriteLine("Lap Data");
-                                F12018PacketInstance.Instance.LapData = F1PacketConvertUtils.FromBinaryReader<LapData>(rdr);
-                                break;
-                            case 3:
-                                Console.WriteLine("Event");
-                                F12018PacketInstance.Instance.PacketEventData = F1PacketConvertUtils.FromBinaryReader<PacketEventData>(rdr);
-                                break;
-                            case 4:
-                                Console.WriteLine("Participants");
-                                F12018PacketInstance.Instance.ParticipantData = F1PacketConvertUtils.FromBinaryReader<ParticipantData>(rdr);
-                                break;
-                            case 5:
-                                Console.WriteLine("Car Setups");
-                                F12018PacketInstance.Instance.CarSetupData = F1PacketConvertUtils.FromBinaryReader<CarSetupData>(rdr);
-                                break;
-                            case 6:
-                                Console.WriteLine("Car Telemetry");
-                                F12018PacketInstance.Instance.CarTelemetryData = F1PacketConvertUtils.FromBinaryReader<CarTelemetryData>(rdr);
-                                break;
-                            case 7:
-                                Console.WriteLine("Car Status");
-                                F12018PacketInstance.Instance.CarStatusData = F1PacketConvertUtils.FromBinaryReader<CarStatusData>(rdr);
-                                break;
-                            default:
-                                break;
-                        }
-                        rdr.Close();
-                    }
-
-                    stream.Flush();
-                    stream.Close();
+                    case 0:
+                        Console.WriteLine("Motion");
+                        break;
+                    case 1:
+                        Console.WriteLine("Session");
+                        PacketSessionData packetSessionData = new PacketSessionData();
+                        so.buffer.Parse(Endian.Little,
+                            From.((m_packetFormat) => packetHeader.m_packetFormat = m_packetFormat),
+                            From.Byte((m_packetVersion) => packetHeader.m_packetVersion = m_packetVersion),
+                            From.Byte((m_packetId) => packetHeader.m_packetId = m_packetId),
+                            From.UInt32((m_sessionUID) => packetHeader.m_sessionUID = m_sessionUID),
+                            From.Int32((m_sessionTime) => packetHeader.m_sessionTime = m_sessionTime),
+                            From.UInt16((m_frameIdentifier) => packetHeader.m_frameIdentifier = m_frameIdentifier),
+                            From.Byte((m_playerCarIndex) => packetHeader.m_playerCarIndex = m_playerCarIndex),
+                            From.Byte((m_weather) => packetSessionData.m_weather = m_weather)
+                        );
+                        Console.WriteLine($"m_weather:{packetSessionData.m_weather}");
+                        break;
+                    case 2:
+                        Console.WriteLine("Lap Data");
+                        break;
+                    case 3:
+                        Console.WriteLine("Event");
+                        break;
+                    case 4:
+                        Console.WriteLine("Participants");
+                        break;
+                    case 5:
+                        Console.WriteLine("Car Setups");
+                        break;
+                    case 6:
+                        Console.WriteLine("Car Telemetry");
+                        break;
+                    case 7:
+                        Console.WriteLine("Car Status");
+                        break;
+                    default:
+                        break;
                 }
+
+
+                //using (var stream = new MemoryStream(so.buffer))
+                //{
+                //    using (BinaryReader rdr = new BinaryReader(stream))
+                //    {
+                //        var packetHeader = (PacketHeader)F1PacketConvertUtils.FromBinaryReader<PacketHeader>(rdr);
+
+                //        switch(packetHeader.m_packetId)
+                //        {
+                //            case 0:
+                //                Console.WriteLine("Motion");
+                //                F12018PacketInstance.Instance.CarMotionData = F1PacketConvertUtils.FromBinaryReader<CarMotionData>(rdr);
+                //                break;
+                //            case 1:
+                //                Console.WriteLine("Session");
+                //                F12018PacketInstance.Instance.PacketSessionData = F1PacketConvertUtils.FromBinaryReader<PacketSessionData>(rdr);
+                //                break;
+                //            case 2:
+                //                Console.WriteLine("Lap Data");
+                //                F12018PacketInstance.Instance.LapData = F1PacketConvertUtils.FromBinaryReader<LapData>(rdr);
+                //                break;
+                //            //case 3:
+                //            //    Console.WriteLine("Event");
+                //            //    F12018PacketInstance.Instance.PacketEventData = (PacketEventData)F1PacketConvertUtils.FromBinaryReader<PacketEventData>(rdr);
+                //            //    break;
+                //            case 4:
+                //                Console.WriteLine("Participants");
+                //                F12018PacketInstance.Instance.ParticipantData = F1PacketConvertUtils.FromBinaryReader<ParticipantData>(rdr);
+                //                break;
+                //            case 5:
+                //                Console.WriteLine("Car Setups");
+                //                F12018PacketInstance.Instance.CarSetupData = F1PacketConvertUtils.FromBinaryReader<CarSetupData>(rdr);
+                //                break;
+                //            //case 6:
+                //            //    Console.WriteLine("Car Telemetry");
+                //            //    F12018PacketInstance.Instance.CarTelemetryData = F1PacketConvertUtils.FromBinaryReader<CarTelemetryData>(rdr);
+                //            //    break;
+                //            case 7:
+                //                Console.WriteLine("Car Status");
+                //                F12018PacketInstance.Instance.CarStatusData = F1PacketConvertUtils.FromBinaryReader<CarStatusData>(rdr);
+                //                break;
+                //            default:
+                //                break;
+                //        }
+                //        rdr.Close();
+                //    }
+
+                //    stream.Flush();
+                //    stream.Close();
+                //}
             }, state);
         }
     }

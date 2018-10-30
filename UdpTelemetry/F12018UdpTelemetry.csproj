@@ -11,4 +11,8 @@
     <None Remove="PRRT.test\**" />
   </ItemGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\MiniBinaryParser-master\MiniBinaryParser-master\src\MiniBinaryParser\MiniBinaryParser.csproj" />
+  </ItemGroup>
+
 </Project>
