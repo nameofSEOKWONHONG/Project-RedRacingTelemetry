@@ -66,15 +66,15 @@ namespace F12018UdpTelemetry
                         switch (F12018UDPMgr.Instance.PacketHeader.m_packetId)
                         {
                             case 0:
-                                Console.WriteLine("Motion");
+                                //Console.WriteLine("Motion");
                                 F12018UDPMgr.Instance.CarMotionData = F1PacketConvertUtils.FromBinaryReader<CarMotionData>(rdr);
                                 break;
                             case 1:
-                                Console.WriteLine("Session");
+                                //Console.WriteLine("Session");
                                 F12018UDPMgr.Instance.PacketSessionData = F1PacketConvertUtils.FromBinaryReader<PacketSessionData>(rdr);
                                 break;
                             case 2:
-                                Console.WriteLine("Lap Data");
+                                //Console.WriteLine("Lap Data");
                                 F12018UDPMgr.Instance.LapData = F1PacketConvertUtils.FromBinaryReader<LapData>(rdr);
                                 break;
                             case 3:
@@ -83,20 +83,20 @@ namespace F12018UdpTelemetry
                                 //F12018PacketInstance.Instance.PacketEventData = (PacketEventData)F1PacketConvertUtils.FromBinaryReader<PacketEventData>(rdr);
                                 break;
                             case 4:
-                                Console.WriteLine("Participants");
+                                //Console.WriteLine("Participants");
                                 F12018UDPMgr.Instance.ParticipantData = F1PacketConvertUtils.FromBinaryReader<ParticipantData>(rdr);
                                 break;
                             case 5:
-                                Console.WriteLine("Car Setups");
+                                //Console.WriteLine("Car Setups");
                                 F12018UDPMgr.Instance.CarSetupData = F1PacketConvertUtils.FromBinaryReader<CarSetupData>(rdr);
                                 break;
                             case 6:
                                 //array memory protected error
-                                Console.WriteLine("Car Telemetry");
+                                //Console.WriteLine("Car Telemetry");
                                 //F12018PacketInstance.Instance.CarTelemetryData = F1PacketConvertUtils.FromBinaryReader<CarTelemetryData>(rdr);
                                 break;
                             case 7:
-                                Console.WriteLine("Car Status");
+                                //Console.WriteLine("Car Status");
                                 F12018UDPMgr.Instance.CarStatusData = F1PacketConvertUtils.FromBinaryReader<CarStatusData>(rdr);
                                 break;
                             default:

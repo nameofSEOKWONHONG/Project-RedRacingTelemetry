@@ -113,6 +113,7 @@ namespace F12018UdpTelemetry
         public byte           m_spectatorCarIndex;  	// Index of the car being spectated
         public byte           m_sliProNativeSupport;	// SLI Pro support, 0 = inactive, 1 = active
         public byte           m_numMarshalZones;         	// Number of marshal zones to follow
+        [MarshalAs(UnmanagedType.ByValArray, SizeConst = 21, MarshalType = "MarshalZone[]", MarshalTypeRef = typeof(MarshalZone[]))]
         public MarshalZone[]  m_marshalZones;         // List of marshal zones – max 21
         public byte           m_safetyCarStatus;          // 0 = no safety car, 1 = full safety car // 2 = virtual safety car
         public byte           m_networkGame;              // 0 = offline, 1 = online
@@ -305,10 +306,10 @@ namespace F12018UdpTelemetry
         public UInt16 m_idleRPM;                  // Cars idle RPM
         public byte m_maxGears;                 // Maximum number of gears
         public byte m_drsAllowed;               // 0 = not allowed, 1 = allowed, -1 = unknown
-        [MarshalAs(UnmanagedType.ByValArray, SizeConst = 4, MarshalType = "byte[]", MarshalTypeRef = typeof(byte))]
+        [MarshalAs(UnmanagedType.ByValArray, SizeConst = 4, MarshalType = "byte[]", MarshalTypeRef = typeof(byte[]))]
         public byte[] m_tyresWear;             // Tyre wear percentage, max=4
         public byte m_tyreCompound;             // Modern - 0 = hyper soft, 1 = ultra soft 2 = super soft, 3 = soft, 4 = medium, 5 = hard 6 = super hard, 7 = inter, 8 = wet Classic - 0-6 = dry, 7-8 = wet
-        [MarshalAs(UnmanagedType.ByValArray, SizeConst = 4, MarshalType = "byte[]", MarshalTypeRef = typeof(byte))]
+        [MarshalAs(UnmanagedType.ByValArray, SizeConst = 4, MarshalType = "byte[]", MarshalTypeRef = typeof(byte[]))]
         public byte[] m_tyresDamage;           // Tyre damage (percentage), max=4
         public byte m_frontLeftWingDamage;      // Front left wing damage (percentage)
         public byte m_frontRightWingDamage;     // Front right wing damage (percentage)

@@ -54,6 +54,7 @@ namespace F12018UdpTelemetry {
             set
             {
                 _carMotionData = value;
+                F1CarMotionDataReceived(this, new F1CarMotionDataEventArgs(1, _carMotionData));
             }
         }
         public event EventHandler<F1CarMotionDataEventArgs> F1CarMotionDataReceived;
