@@ -1,15 +1,16 @@
 using System;
 
 namespace F12018UdpTelemetry {
-    public class F12018PacketInstance {
-        private static F12018PacketInstance _instance;
+    public class F12018UDPMgr {
+        private static F12018UDPMgr _instance;
         private static object _syncObj = new object();
-        public static F12018PacketInstance Instance {
+        
+        public static F12018UDPMgr Instance {
             get{
                 if(_instance == null) {
                     lock(_syncObj) {
                         if(_instance == null) {
-                            _instance = new F12018PacketInstance();
+                            _instance = new F12018UDPMgr();
 
                         }
                     }
@@ -19,8 +20,52 @@ namespace F12018UdpTelemetry {
             }
         }
 
-        public PacketHeader PacketHeader {get;set;}
-        public CarMotionData CarMotionData {get;set;}
+        #region packetheader
+        private PacketHeader _packetHeader;
+        public PacketHeader PacketHeader {
+            get
+            {
+                return _packetHeader;
+            }
+            set
+            {
+                _packetHeader = value;
+                OnF1PacketHeaderDataReceive(this, new F1PacketHeaderDataEventArgs(0, _packetHeader));
+            }
+        }
+        public event EventHandler<F1PacketHeaderDataEventArgs> F1PacketHeaderDataReceived;
+        protected virtual void OnF1PacketHeaderDataReceive(object sender, F1PacketHeaderDataEventArgs e)
+        {
+            if (F1PacketHeaderDataReceived != null)
+            {
+                F1PacketHeaderDataReceived(this, e);
+            }
+        }
+        #endregion
+
+        #region carmotiondata
+        public CarMotionData _carMotionData;
+        public CarMotionData CarMotionData
+        {
+            get
+            {
+                return _carMotionData;
+            }
+            set
+            {
+                _carMotionData = value;
+            }
+        }
+        public event EventHandler<F1CarMotionDataEventArgs> F1CarMotionDataReceived;
+        protected virtual void OnF1CarMotionDataReceive(object sender, F1CarMotionDataEventArgs e)
+        {
+            if (F1CarMotionDataReceived != null)
+            {
+                F1CarMotionDataReceived(this, e);
+            }
+        }
+        #endregion
+
         public PacketMotionData PacketMotionData {get;set;}
         public MarshalZone MarshalZone {get;set;}
         public PacketSessionData PacketSessionData {get;set;}
@@ -32,6 +77,7 @@ namespace F12018UdpTelemetry {
         public CarSetupData CarSetupData {get;set;}
         public PacketCarSetupData PacketCarSetupData {get;set;}
 
+        #region cartelemetrydata
         private CarTelemetryData _carTelemetryData;
         public CarTelemetryData CarTelemetryData {
             get
@@ -52,9 +98,11 @@ namespace F12018UdpTelemetry {
                 F1F1CarTelemetryDataReceived(this, e);
             }
         }
+        #endregion
 
         public PacketCarTelemetryData PacketCarTelemetryData {get;set;}
 
+        #region carstatusdata
         public CarStatusData _carStatusData;
         public CarStatusData CarStatusData {
             get{
@@ -83,9 +131,35 @@ namespace F12018UdpTelemetry {
                 F1PacketCarStatusDataReceived(this, e);
             }
         }
+        #endregion
 
-        private F12018PacketInstance() {
+        private F12018UDPMgr() {
             
+        }
+    }
+
+    #region eventargs
+    public class F1PacketHeaderDataEventArgs : EventArgs
+    {
+        public byte packetCode { get; set; }
+        public PacketHeader packetStruct { get; set; }
+
+        public F1PacketHeaderDataEventArgs(byte packetCode, PacketHeader packetStruct)
+        {
+            this.packetCode = packetCode;
+            this.packetStruct = packetStruct;
+        }
+    }
+
+    public class F1CarMotionDataEventArgs : EventArgs
+    {
+        public byte packetCode { get; set; }
+        public CarMotionData packetStruct { get; set; }
+
+        public F1CarMotionDataEventArgs(byte packetCode, CarMotionData packetStruct)
+        {
+            this.packetCode = packetCode;
+            this.packetStruct = packetStruct;
         }
     }
 
@@ -112,4 +186,5 @@ namespace F12018UdpTelemetry {
             this.packetStruct = packetStruct;
         }
     }
+    #endregion
 }
