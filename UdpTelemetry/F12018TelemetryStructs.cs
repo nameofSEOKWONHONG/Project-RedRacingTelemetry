@@ -1,5 +1,6 @@
 using System;
 using System.Runtime.InteropServices;
+using System.Runtime.Serialization;
 
 /// <summary>
 /// reference site : https://forums.codemasters.com/discussion/136948/f1-2018-udp-specification
@@ -13,7 +14,7 @@ namespace F12018UdpTelemetry
     /// ref code : https://us.v-cdn.net/5021484/uploads/editor/i2/fj958zeqdhf8.png
     /// </summary>
     [Serializable]
-    public struct PacketHeader
+    public struct PacketHeader : ISerializable
     {
         public UInt16    m_packetFormat;         // 2018
         public byte      m_packetVersion;        // Version of this packet type, all start from 1
@@ -22,6 +23,17 @@ namespace F12018UdpTelemetry
         public float     m_sessionTime;          // Session timestamp
         public uint      m_frameIdentifier;      // Identifier for the frame the data was retrieved on
         public byte m_playerCarIndex;       // Index of player's car in the array
+
+        public void GetObjectData(SerializationInfo info, StreamingContext context)
+        {
+            info.AddValue("m_packetFormat", m_packetFormat);
+            info.AddValue("m_packetVersion", m_packetVersion);
+            info.AddValue("m_packetId", m_packetId);
+            info.AddValue("m_sessionUID", m_sessionUID);
+            info.AddValue("m_sessionTime", m_sessionTime);
+            info.AddValue("m_frameIdentifier", m_frameIdentifier);
+            info.AddValue("m_playerCarIndex", m_playerCarIndex);
+        }
     }
 
     /// <summary>
@@ -54,16 +66,23 @@ namespace F12018UdpTelemetry
     }
 
     [Serializable]
+    [StructLayout(LayoutKind.Sequential)]
     public struct PacketMotionData
     {
         public PacketHeader    m_header;               // Header
+        [MarshalAs(UnmanagedType.ByValArray, SizeConst = 20, MarshalType = "CarMotionData", MarshalTypeRef = typeof(CarMotionData))]
         public CarMotionData[]   m_carMotionData;    // Data for all cars on track (array length:20)
-        
+
         // Extra player car ONLY data
+        [MarshalAs(UnmanagedType.ByValArray, SizeConst = 4, MarshalType = "float", MarshalTypeRef = typeof(float))]
         public float[]         m_suspensionPosition;       // Note: All wheel arrays have the following order: (array length:4)
+        [MarshalAs(UnmanagedType.ByValArray, SizeConst = 4, MarshalType = "float", MarshalTypeRef = typeof(float))]
         public float[]         m_suspensionVelocity;       // RL, RR, FL, FR (array length:4)
+        [MarshalAs(UnmanagedType.ByValArray, SizeConst = 4, MarshalType = "float", MarshalTypeRef = typeof(float))]
         public float[]         m_suspensionAcceleration;   // RL, RR, FL, FR (array length:4)
+        [MarshalAs(UnmanagedType.ByValArray, SizeConst = 4, MarshalType = "float", MarshalTypeRef = typeof(float))]
         public float[]         m_wheelSpeed;               // Speed of each wheel (array length:4)
+        [MarshalAs(UnmanagedType.ByValArray, SizeConst = 4, MarshalType = "float", MarshalTypeRef = typeof(float))]
         public float[]         m_wheelSlip;                // Slip ratio for each wheel (array length:4)
         public float         m_localVelocityX;              // Velocity in local space
         public float         m_localVelocityY;              // Velocity in local space

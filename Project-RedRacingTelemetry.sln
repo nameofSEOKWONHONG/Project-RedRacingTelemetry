@@ -11,6 +11,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BeeSchema", "BeeSchema-mast
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MiniBinaryParser", "MiniBinaryParser-master\MiniBinaryParser-master\src\MiniBinaryParser\MiniBinaryParser.csproj", "{B7AAD2C4-E11D-4AF9-8CA9-12CE9487EAC3}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "F12018UdpTelemetry.winform.test", "F12018UdpTelemetry.winform.test\F12018UdpTelemetry.winform.test.csproj", "{9110D1D9-BACC-4A26-8144-69A04DA69A53}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -33,6 +35,10 @@ Global
 		{B7AAD2C4-E11D-4AF9-8CA9-12CE9487EAC3}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{B7AAD2C4-E11D-4AF9-8CA9-12CE9487EAC3}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{B7AAD2C4-E11D-4AF9-8CA9-12CE9487EAC3}.Release|Any CPU.Build.0 = Release|Any CPU
+		{9110D1D9-BACC-4A26-8144-69A04DA69A53}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{9110D1D9-BACC-4A26-8144-69A04DA69A53}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{9110D1D9-BACC-4A26-8144-69A04DA69A53}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{9110D1D9-BACC-4A26-8144-69A04DA69A53}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

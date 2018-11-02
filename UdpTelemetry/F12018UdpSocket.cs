@@ -67,7 +67,8 @@ namespace F12018UdpTelemetry
                         {
                             case 0:
                                 //Console.WriteLine("Motion");
-                                F12018UDPMgr.Instance.CarMotionData = F1PacketConvertUtils.FromBinaryReader<CarMotionData>(rdr);
+                                //F12018UDPMgr.Instance.CarMotionData = F1PacketConvertUtils.FromBinaryReader<CarMotionData>(rdr);
+                                F12018UDPMgr.Instance.PacketMotionData = F1PacketConvertUtils.FromBinaryReader<PacketMotionData>(rdr);
                                 break;
                             case 1:
                                 //Console.WriteLine("Session");
