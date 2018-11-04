@@ -1,26 +1,88 @@
 using System;
 using System.Runtime.InteropServices;
+using System.Runtime.Serialization;
 
 /// <summary>
 /// reference site : https://forums.codemasters.com/discussion/136948/f1-2018-udp-specification
 /// </summary>
 namespace F12018UdpTelemetry
 {
-    
+    /// <summary>
+    ///  2018의 주요 변경 사항은 여러 패킷 유형의 도입입니다. 
+    /// 이제 각 패킷은 모든 것을 포함하는 하나의 패킷을 가지지 않고 다른 유형의 데이터를 전달할 수 있습니다. 
+    /// 각 패킷에도 헤더가 추가되어 버전 관리를 추적 할 수 있으며 응용 프로그램이 들어오는 데이터를 올바른 방식으로 해석하고 있는지 쉽게 확인할 수 있습니다.
+    /// ref code : https://us.v-cdn.net/5021484/uploads/editor/i2/fj958zeqdhf8.png
+    /// </summary>
+    [Serializable]
+    public struct PacketHeader : ISerializable
+    {
+        public UInt16    m_packetFormat;         // 2018
+        public byte      m_packetVersion;        // Version of this packet type, all start from 1
+        public byte      m_packetId;             // Identifier for the packet type, see below
+        public UInt64    m_sessionUID;           // Unique identifier for the session
+        public float     m_sessionTime;          // Session timestamp
+        public uint      m_frameIdentifier;      // Identifier for the frame the data was retrieved on
+        public byte m_playerCarIndex;       // Index of player's car in the array
 
-   
+        public void GetObjectData(SerializationInfo info, StreamingContext context)
+        {
+            info.AddValue("m_packetFormat", m_packetFormat);
+            info.AddValue("m_packetVersion", m_packetVersion);
+            info.AddValue("m_packetId", m_packetId);
+            info.AddValue("m_sessionUID", m_sessionUID);
+            info.AddValue("m_sessionTime", m_sessionTime);
+            info.AddValue("m_frameIdentifier", m_frameIdentifier);
+            info.AddValue("m_playerCarIndex", m_playerCarIndex);
+        }
+    }
+
+    /// <summary>
+    ///  모션 패킷은 구동되는 모든 자동차에 대한 물리 데이터를 제공합니다. 
+    /// 모션 플랫폼 설정을 유도 할 수 있다는 목표로 운전중인 자동차에 대한 추가 데이터가 있습니다.
+    /// NB 아래의 정규화 된 벡터의 경우 float 값으로 변환하면 32767.0f로 나눕니다. 
+    /// 16 비트 부호있는 값은 방향 값이 항상 -1.0f와 1.0f 사이에 있다는 가정하에 데이터를 묶는 데 사용됩니다.
+    /// </summary>
+    [Serializable]
+    public struct CarMotionData
+    {
+        public float         m_worldPositionX;           // World space X position
+        public float         m_worldPositionY;           // World space Y position
+        public float         m_worldPositionZ;           // World space Z position
+        public float         m_worldVelocityX;           // Velocity in world space X
+        public float         m_worldVelocityY;           // Velocity in world space Y
+        public float         m_worldVelocityZ;           // Velocity in world space Z
+        public Int16         m_worldForwardDirX;         // World space forward X direction (normalised)
+        public Int16         m_worldForwardDirY;         // World space forward Y direction (normalised)
+        public Int16         m_worldForwardDirZ;         // World space forward Z direction (normalised)
+        public Int16         m_worldRightDirX;           // World space right X direction (normalised)
+        public Int16         m_worldRightDirY;           // World space right Y direction (normalised)
+        public Int16         m_worldRightDirZ;           // World space right Z direction (normalised)
+        public float         m_gForceLateral;            // Lateral G-Force component
+        public float         m_gForceLongitudinal;       // Longitudinal G-Force component
+        public float         m_gForceVertical;           // Vertical G-Force component
+        public float         m_yaw;                      // Yaw angle in radians
+        public float         m_pitch;                    // Pitch angle in radians
+        public float         m_roll;                     // Roll angle in radians
+    }
 
     [Serializable]
+    [StructLayout(LayoutKind.Sequential)]
     public struct PacketMotionData
     {
         public PacketHeader    m_header;               // Header
+        [MarshalAs(UnmanagedType.ByValArray, SizeConst = 20, MarshalType = "CarMotionData", MarshalTypeRef = typeof(CarMotionData))]
         public CarMotionData[]   m_carMotionData;    // Data for all cars on track (array length:20)
-        
+
         // Extra player car ONLY data
+        [MarshalAs(UnmanagedType.ByValArray, SizeConst = 4, MarshalType = "float", MarshalTypeRef = typeof(float))]
         public float[]         m_suspensionPosition;       // Note: All wheel arrays have the following order: (array length:4)
+        [MarshalAs(UnmanagedType.ByValArray, SizeConst = 4, MarshalType = "float", MarshalTypeRef = typeof(float))]
         public float[]         m_suspensionVelocity;       // RL, RR, FL, FR (array length:4)
+        [MarshalAs(UnmanagedType.ByValArray, SizeConst = 4, MarshalType = "float", MarshalTypeRef = typeof(float))]
         public float[]         m_suspensionAcceleration;   // RL, RR, FL, FR (array length:4)
+        [MarshalAs(UnmanagedType.ByValArray, SizeConst = 4, MarshalType = "float", MarshalTypeRef = typeof(float))]
         public float[]         m_wheelSpeed;               // Speed of each wheel (array length:4)
+        [MarshalAs(UnmanagedType.ByValArray, SizeConst = 4, MarshalType = "float", MarshalTypeRef = typeof(float))]
         public float[]         m_wheelSlip;                // Slip ratio for each wheel (array length:4)
         public float         m_localVelocityX;              // Velocity in local space
         public float         m_localVelocityY;              // Velocity in local space
@@ -34,9 +96,47 @@ namespace F12018UdpTelemetry
         public float         m_frontWheelsAngle;            // Current front wheels angle in radians
     }
 
-  
+    /// <summary>
+    /// SESSION PACKET
+    /// The session packet includes details about the current session in progress.
+    /// Frequency: 2 per second
+    /// Size: 147 bytes
+    /// </summary>
+    [Serializable]    
+    public struct MarshalZone
+    {
+        public float  m_zoneStart;   // Fraction (0..1) of way through the lap the marshal zone starts
+        public sbyte   m_zoneFlag;    // -1 = invalid/unknown, 0 = none, 1 = green, 2 = blue, 3 = yellow, 4 = red
+    }
 
-    
+    [Serializable]
+    public struct PacketSessionData
+    {
+        public PacketHeader    m_header;               	// Header
+        public byte           m_weather;              	// Weather - 0 = clear, 1 = light cloud, 2 = overcast  // 3 = light rain, 4 = heavy rain, 5 = storm
+        public sbyte	    m_trackTemperature;    	// Track temp. in degrees celsius
+        public sbyte	    m_airTemperature;      	// Air temp. in degrees celsius
+        public byte           m_totalLaps;           	// Total number of laps in this race
+        public byte          m_trackLength;           	// Track length in metres
+        public byte           m_sessionType;         	// 0 = unknown, 1 = P1, 2 = P2, 3 = P3, 4 = Short P // 5 = Q1, 6 = Q2, 7 = Q3, 8 = Short Q, 9 = OSQ // 10 = R, 11 = R2, 12 = Time Trial
+        /// <summary>
+        /// ref code : https://us.v-cdn.net/5021484/uploads/editor/t2/i3thn8e58vgt.png
+        /// </summary>
+        public sbyte            m_trackId;         		// -1 for unknown, 0-21 for tracks, see appendix
+        public byte           m_era;                  	// Era, 0 = modern, 1 = classic
+        public byte          m_sessionTimeLeft;    	// Time left in session in seconds
+        public byte          m_sessionDuration;     	// Session duration in seconds
+        public byte           m_pitSpeedLimit;      	// Pit speed limit in kilometres per hour
+        public byte           m_gamePaused;               // Whether the game is paused
+        public byte           m_isSpectating;        	// Whether the player is spectating
+        public byte           m_spectatorCarIndex;  	// Index of the car being spectated
+        public byte           m_sliProNativeSupport;	// SLI Pro support, 0 = inactive, 1 = active
+        public byte           m_numMarshalZones;         	// Number of marshal zones to follow
+        [MarshalAs(UnmanagedType.ByValArray, SizeConst = 21, MarshalType = "MarshalZone[]", MarshalTypeRef = typeof(MarshalZone[]))]
+        public MarshalZone[]  m_marshalZones;         // List of marshal zones – max 21
+        public byte           m_safetyCarStatus;          // 0 = no safety car, 1 = full safety car // 2 = virtual safety car
+        public byte           m_networkGame;              // 0 = offline, 1 = online
+    }
 
     /// <summary>
     /// LAP DATA PACKET

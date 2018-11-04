@@ -53,7 +53,10 @@ namespace F12018UdpTelemetry {
             }
             set
             {
+                value.m_worldPositionX /= 32767.0f;
+
                 _carMotionData = value;
+
                 F1CarMotionDataReceived(this, new F1CarMotionDataEventArgs(1, _carMotionData));
             }
         }
@@ -67,7 +70,28 @@ namespace F12018UdpTelemetry {
         }
         #endregion
 
-        public PacketMotionData PacketMotionData { get; set; }
+        private PacketMotionData _packetMotionData;
+        public PacketMotionData PacketMotionData {
+            get
+            {
+                return _packetMotionData;
+            }
+            set
+            {
+                _packetMotionData = value;
+                OnF1PacketMotionDataReceive(this, new F1PacketMotionDataEventArgs(0, _packetMotionData));
+            }
+        }
+        public event EventHandler<F1PacketMotionDataEventArgs> F1PacketMotionDataReceived;
+        protected virtual void OnF1PacketMotionDataReceive(object sender, F1PacketMotionDataEventArgs e)
+        {
+            if (F1PacketMotionDataReceived != null)
+            {
+                F1PacketMotionDataReceived(this, e);
+            }
+        }
+        
+
         public MarshalZone MarshalZone { get; set; }
 
         #region packetsessiondata
@@ -103,24 +127,66 @@ namespace F12018UdpTelemetry {
             set
             {
                 _lapData = value;
-                OnF1PacketLapDataReceive(this, new F1PacketLapDataEventArgs(2, _lapData));
+                OnF1LapDataReceive(this, new F1LapDataEventArgs(2, _lapData));
             }
         }
-        public event EventHandler<F1PacketLapDataEventArgs> F1PacketLapDataReceived;
-        protected virtual void OnF1PacketLapDataReceive(object sender, F1PacketLapDataEventArgs e)
+        public event EventHandler<F1LapDataEventArgs> F1LapDataReceived;
+        protected virtual void OnF1LapDataReceive(object sender, F1LapDataEventArgs e)
         {
-            if (F1PacketLapDataReceived != null)
+            if (F1LapDataReceived != null)
             {
-                OnF1PacketLapDataReceive(this, e);
+                F1LapDataReceived(this, e);
             }
         }
         #endregion
 
         public PacketLapData PacketLapData { get; set; }
         public PacketEventData PacketEventData { get; set; }
-        public ParticipantData ParticipantData { get; set; }
+
+        private ParticipantData _participantData;
+        public ParticipantData ParticipantData {
+            get
+            {
+                return _participantData;
+            }
+            set
+            {
+                _participantData = value;
+                OnF1ParticipantDataReceive(this, new F1ParticipantDataEventArgs(4, _participantData));
+            }
+        }
+        public event EventHandler<F1ParticipantDataEventArgs> F1ParticipantDataReceived;
+        protected virtual void OnF1ParticipantDataReceive(object sender, F1ParticipantDataEventArgs e)
+        {
+            if (F1ParticipantDataReceived != null)
+            {
+                F1ParticipantDataReceived(this, e);
+            }
+        }
+
         public PacketParticipantsData PacketParticipantsData { get; set; }
-        public CarSetupData CarSetupData { get; set; }
+
+        private CarSetupData _carSetupData;
+        public CarSetupData CarSetupData {
+            get
+            {
+                return _carSetupData;
+            }
+            set
+            {
+                _carSetupData = value;
+                OnF1CarSetupDataReceive(this, new F1CarSetupEventArgs(5, _carSetupData));
+            }
+        }
+        public event EventHandler<F1CarSetupEventArgs> F1CarSetupDataReceived;
+        protected virtual void OnF1CarSetupDataReceive(object sender, F1CarSetupEventArgs e)
+        {
+            if (F1CarSetupDataReceived != null)
+            {
+                F1CarSetupDataReceived(this, e);
+            }
+        }
+
         public PacketCarSetupData PacketCarSetupData { get; set; }
 
         #region cartelemetrydata
@@ -156,6 +222,15 @@ namespace F12018UdpTelemetry {
             }
             set {
                 _carStatusData = value;
+                OnF1CarStatusDataReceivee(this, new F1CarStatusDataEventArgs(7, _carStatusData));
+            }
+        }
+        public event EventHandler<F1CarStatusDataEventArgs> F1CarStatusDataReceived;
+        protected virtual void OnF1CarStatusDataReceivee(object sender, F1CarStatusDataEventArgs e)
+        {
+            if (F1CarStatusDataReceived != null)
+            {
+                F1CarStatusDataReceived(this, e);
             }
         }
 
@@ -166,17 +241,9 @@ namespace F12018UdpTelemetry {
             }
             set {
                 _packetCarStatusData = value;
-                OnF1PacketCarStatusDataReceive(this, new F1PacketCarStatusDataEventArgs(7, _packetCarStatusData));
             }
         }
-        public event EventHandler<F1PacketCarStatusDataEventArgs> F1PacketCarStatusDataReceived;
-        protected virtual void OnF1PacketCarStatusDataReceive(object sender, F1PacketCarStatusDataEventArgs e)
-        {
-            if (F1PacketCarStatusDataReceived != null)
-            {
-                F1PacketCarStatusDataReceived(this, e);
-            }
-        }
+
         #endregion
 
         private F12018UDPMgr() {
@@ -185,6 +252,30 @@ namespace F12018UdpTelemetry {
     }
 
     #region eventargs
+    public class F1CarMotionDataEventArgs : EventArgs
+    {
+        public byte packetCode;
+        public CarMotionData packetStruct;
+
+        public F1CarMotionDataEventArgs(byte packetCode, CarMotionData packetStruct)
+        {
+            this.packetCode = packetCode;
+            this.packetStruct = packetStruct;
+        }
+    }
+
+    public class F1PacketMotionDataEventArgs : EventArgs
+    {
+        public byte packetCode;
+        public PacketMotionData packetStruct;
+
+        public F1PacketMotionDataEventArgs(byte packetCode, PacketMotionData packetStruct)
+        {
+            this.packetCode = packetCode;
+            this.packetStruct = packetStruct;
+        }
+    }
+
     public class F1PacketHeaderDataEventArgs : EventArgs
     {
         public byte packetCode;
@@ -209,36 +300,50 @@ namespace F12018UdpTelemetry {
         }
     }
 
-    public class F1PacketLapDataEventArgs : EventArgs
+    public class F1LapDataEventArgs : EventArgs
     {
         public byte packetCode;
         public LapData packetStruct;
 
-        public F1PacketLapDataEventArgs(byte packetCode, LapData packetStruct)
+        public F1LapDataEventArgs(byte packetCode, LapData packetStruct)
         {
             this.packetCode = packetCode;
             this.packetStruct = packetStruct;
         }
     }
 
-    public class F1CarMotionDataEventArgs : EventArgs
+    public class F1ParticipantDataEventArgs : EventArgs
     {
         public byte packetCode;
-        public CarMotionData packetStruct;
+        public ParticipantData packetStruct;
 
-        public F1CarMotionDataEventArgs(byte packetCode, CarMotionData packetStruct)
+        public F1ParticipantDataEventArgs(byte packetCode, ParticipantData packetStruct)
         {
             this.packetCode = packetCode;
             this.packetStruct = packetStruct;
         }
     }
 
-    public class F1PacketCarStatusDataEventArgs : EventArgs
+    public class F1CarSetupEventArgs : EventArgs
     {
         public byte packetCode;
-        public PacketCarStatusData packetStruct;
+        public CarSetupData packetStruct;
 
-        public F1PacketCarStatusDataEventArgs(byte packetCode, PacketCarStatusData packetStruct)
+        public F1CarSetupEventArgs(byte packetCode, CarSetupData packetStruct)
+        {
+            this.packetCode = packetCode;
+            this.packetStruct = packetStruct;
+        }
+    }
+
+    
+
+    public class F1CarStatusDataEventArgs : EventArgs
+    {
+        public byte packetCode;
+        public CarStatusData packetStruct;
+
+        public F1CarStatusDataEventArgs(byte packetCode, CarStatusData packetStruct)
         {
             this.packetCode = packetCode;
             this.packetStruct = packetStruct;
