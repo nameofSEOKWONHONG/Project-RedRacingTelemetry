@@ -21,6 +21,6 @@ namespace F12018UdpTelemetry {
             T returnStruct = (T)Marshal.PtrToStructure(handle.AddrOfPinnedObject(), typeof(T));
             handle.Free();
             return returnStruct;
-        } 
+        }
     }
 }

@@ -15,6 +15,7 @@ namespace F12018UdpTelemetry.test
             F12018UdpSocket c = new F12018UdpSocket();
             c.Server("192.168.0.11", 20777);
             //c.Send("TEST!");
+            
             F12018UDPMgr.Instance.F1CarMotionDataReceived += Instance_F1CarMotionDataReceived;
             F12018UDPMgr.Instance.F1F1CarTelemetryDataReceived += Instance_F1F1CarTelemetryDataReceived;
             F12018UDPMgr.Instance.F1PacketCarStatusDataReceived += Instance_F1PacketCarStatusDataReceived;

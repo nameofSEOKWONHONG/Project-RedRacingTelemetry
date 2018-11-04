@@ -1,4 +1,7 @@
 ﻿using MiniBinaryParser;
+using Project_RedRacingTelemetry;
+using Project_RedRacingTelemetry.Abstract;
+using Project_RedRacingTelemetry.Objects;
 using System;
 using System.IO;
 using System.Net;
@@ -53,61 +56,8 @@ namespace F12018UdpTelemetry
                 State so = (State)ar.AsyncState;
                 int bytes = _socket.EndReceiveFrom(ar, ref epFrom);
                 _socket.BeginReceiveFrom(so.buffer, 0, bufSize, SocketFlags.None, ref epFrom, recv, so);
-                
-                //set endian little
-                Array.Reverse(so.buffer);
 
-                using (var stream = new MemoryStream(so.buffer))
-                {
-                    using (BinaryReader rdr = new BinaryReader(stream))
-                    {
-                        F12018UDPMgr.Instance.PacketHeader = F1PacketConvertUtils.FromBinaryReader<PacketHeader>(rdr);
-
-                        switch (F12018UDPMgr.Instance.PacketHeader.m_packetId)
-                        {
-                            case 0:
-                                //Console.WriteLine("Motion");
-                                F12018UDPMgr.Instance.CarMotionData = F1PacketConvertUtils.FromBinaryReader<CarMotionData>(rdr);
-                                break;
-                            case 1:
-                                //Console.WriteLine("Session");
-                                F12018UDPMgr.Instance.PacketSessionData = F1PacketConvertUtils.FromBinaryReader<PacketSessionData>(rdr);
-                                break;
-                            case 2:
-                                //Console.WriteLine("Lap Data");
-                                F12018UDPMgr.Instance.LapData = F1PacketConvertUtils.FromBinaryReader<LapData>(rdr);
-                                break;
-                            case 3:
-                                //array memeory protected error
-                                Console.WriteLine("Event");
-                                //F12018PacketInstance.Instance.PacketEventData = (PacketEventData)F1PacketConvertUtils.FromBinaryReader<PacketEventData>(rdr);
-                                break;
-                            case 4:
-                                //Console.WriteLine("Participants");
-                                F12018UDPMgr.Instance.ParticipantData = F1PacketConvertUtils.FromBinaryReader<ParticipantData>(rdr);
-                                break;
-                            case 5:
-                                //Console.WriteLine("Car Setups");
-                                F12018UDPMgr.Instance.CarSetupData = F1PacketConvertUtils.FromBinaryReader<CarSetupData>(rdr);
-                                break;
-                            case 6:
-                                //array memory protected error
-                                //Console.WriteLine("Car Telemetry");
-                                //F12018PacketInstance.Instance.CarTelemetryData = F1PacketConvertUtils.FromBinaryReader<CarTelemetryData>(rdr);
-                                break;
-                            case 7:
-                                //Console.WriteLine("Car Status");
-                                F12018UDPMgr.Instance.CarStatusData = F1PacketConvertUtils.FromBinaryReader<CarStatusData>(rdr);
-                                break;
-                            default:
-                                break;
-                        }
-                        rdr.Close();
-                    }
-
-                    stream.Flush();
-                    stream.Close();
-                }
+                SubScribes subscribes = new SubScribes(so.buffer);
             }, state);
         }
     }
