@@ -1,4 +1,5 @@
 ﻿using F12018UdpTelemetry;
+using Project_RedRacingTelemetry.Abstract;
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -9,7 +10,7 @@ namespace Project_RedRacingTelemetry
     {
         private F12018PacketFactory() { }
 
-        public static IF12018Packet CreateInstance(PacketHeader packetHeader)
+        public static IF1PacketObject CreateInstance(PacketHeader packetHeader)
         {
             switch(packetHeader.m_packetId)
             {

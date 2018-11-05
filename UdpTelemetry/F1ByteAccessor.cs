@@ -59,5 +59,10 @@ namespace Project_RedRacingTelemetry
             }
             return v;
         }
+
+        public sbyte GetSignedByte(long position)
+        {
+            return Convert.ToSByte(buffer[position]);
+        }
     }
 }
